@@ -1,17 +1,17 @@
-from datetime import date
+import email_validator
+import os
 import sqlalchemy.exc
+from datetime import date
 from flask import Flask, abort, render_template, redirect, url_for, flash, session, g
 from flask_bootstrap import Bootstrap5
 from flask_ckeditor import CKEditor
 from flask_gravatar import Gravatar
 from flask_login import UserMixin, login_user, LoginManager, current_user, logout_user
-import email_validator
 from flask_sqlalchemy import SQLAlchemy
+from forms import CreatePostForm, RegisterForm, LoginForm, CommentForm
 from functools import wraps
 from werkzeug.security import generate_password_hash, check_password_hash
 from sqlalchemy.orm import relationship
-from forms import CreatePostForm, RegisterForm, LoginForm, CommentForm
-import os
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = os.environ.get('FLASK_KEY')
@@ -43,7 +43,6 @@ class User(db.Model, UserMixin):
     password = db.Column(db.String(100))
     name = db.Column(db.String(1000))
     posts = db.relationship('BlogPost', backref='user')
-    comments = db.relationship('Comment', backref='commenter')
 
 
 class BlogPost(db.Model):
@@ -55,7 +54,6 @@ class BlogPost(db.Model):
     body = db.Column(db.Text, nullable=False)
     author = db.Column(db.String(250), nullable=False)
     img_url = db.Column(db.String(250), nullable=False)
-    comments = db.relationship('Comment', backref='post', foreign_keys='Comment.parent_post_id')
 
 
 class Comment(db.Model):
@@ -64,7 +62,6 @@ class Comment(db.Model):
     text = db.Column(db.String(250), nullable=False)
     author = db.relationship('User', backref='author')
     parent_post_id = db.Column(db.Integer, db.ForeignKey('blog_post.id'))
-    parent_post = db.relationship('BlogPost', backref='Comment.parent_post_id')
 
 
 with app.app_context():
@@ -230,7 +227,7 @@ def contact():
 
 @login_manager.user_loader
 def load_user(user_id):
-    return User.query.get(user_id)
+    return db.get_or_404(User, user_id)
 
 
 if __name__ == "__main__":
