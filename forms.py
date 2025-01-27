@@ -6,10 +6,10 @@ from flask_ckeditor import CKEditorField
 
 # WTForm for creating a blog post
 class CreatePostForm(FlaskForm):
-    title = StringField("Blog Post Title", validators=[DataRequired()])
+    title = StringField("Song Title", validators=[DataRequired()])
     subtitle = StringField("Subtitle", validators=[DataRequired()])
-    img_url = StringField("Blog Image URL", validators=[DataRequired(), URL()])
-    body = CKEditorField("Blog Content", validators=[DataRequired()])
+    img_url = StringField("Image URL", validators=[DataRequired(), URL()])
+    body = CKEditorField("Lyrics", validators=[DataRequired()])
     submit = SubmitField("Submit Post")
 
 
